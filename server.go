@@ -11,8 +11,8 @@ import (
 )
 
 type Time struct {
-	Unix    int64  `json:"unix"`
-	Natural string `json:"natural"`
+	Unix    *int64  `json:"unix"`
+	Natural *string `json:"natural"`
 }
 
 func main() {
@@ -34,20 +34,32 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 func TimeHandler(w http.ResponseWriter, r *http.Request) {
 	str := mux.Vars(r)["time"]
 	w.WriteHeader(http.StatusOK)
-	if timestamp, err := strconv.Atoi(str); err == nil {
-		t := time.Unix(int64(timestamp), 0)
+
+	if timestmp, err := strconv.Atoi(str); err == nil {
+		t := time.Unix(int64(timestmp), 0)
+
 		timestring := t.Format("January 02, 2006")
+		timestamp := int64(timestmp)
+
 		json.NewEncoder(w).Encode(Time{
-			int64(timestamp),
-			timestring,
+			&timestamp,
+			&timestring,
 		})
 	} else {
-		t, _ := time.Parse("January 02, 2006", str)
-		timestamp := t.Unix()
-		timestring := str
-		json.NewEncoder(w).Encode(Time{
-			timestamp,
-			timestring,
-		})
+		t, err := time.Parse("January 02, 2006", str)
+		if err != nil {
+			json.NewEncoder(w).Encode(Time{
+				nil,
+				nil,
+			})
+		} else {
+			timestamp := t.Unix()
+			timestring := str
+
+			json.NewEncoder(w).Encode(Time{
+				&timestamp,
+				&timestring,
+			})
+		}
 	}
 }
