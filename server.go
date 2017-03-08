@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -24,7 +22,9 @@ func main() {
 	http.Handle("/", r)
 
 	port := os.Getenv("PORT")
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		panic(err)
+	}
 }
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,11 +42,7 @@ func TimeHandler(w http.ResponseWriter, r *http.Request) {
 			timestring,
 		})
 	} else {
-		t, err := time.Parse("January 02, 2006", str)
-		if err != nil {
-			fmt.Fprintf(w, "Invalid input")
-			os.Exit(0)
-		}
+		t, _ := time.Parse("January 02, 2006", str)
 		timestamp := t.Unix()
 		timestring := str
 		json.NewEncoder(w).Encode(Time{
