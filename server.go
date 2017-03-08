@@ -23,7 +23,7 @@ func main() {
 	r.HandleFunc("/{time}", TimeHandler)
 	http.Handle("/", r)
 
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
